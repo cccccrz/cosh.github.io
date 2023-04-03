@@ -102,4 +102,6 @@ theme: yelee
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: git
+  repository: git@github.com:cccccrz/cccccrz.github.io.git
+  branch: develop
