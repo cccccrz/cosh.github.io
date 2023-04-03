@@ -4,16 +4,16 @@
 
 # Site
 title: ONE PIECE
-subtitle: ''
-description: ''
-keywords:
+subtitle: 'one piece~'
+description: 'wellcome'
+keywords: tty
 author: tty
-language: ch
-timezone: ''
+language: zh-Hans
+timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://cccccrz.github.io/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -97,7 +97,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: yelee
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
