@@ -1,2 +1,1 @@
-# cosh.github.io
-my page
+Hexo 搭建的个人网站
