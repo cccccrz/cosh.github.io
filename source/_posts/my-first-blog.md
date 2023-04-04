@@ -1,7 +1,7 @@
 ---
 title: my first blog
 date: 2023-04-03 15:10:39
-tags:
+categories: 日志
 ---
 
 this is my first blog
