@@ -8,7 +8,7 @@ subtitle: 一个兴趣使然的coder
 description: Welcome to my space~
 keywords: ONE PIECE
 author: tty
-language: zh-Hans
+language: zh-CN
 timezone: Asia/Shanghai
 
 # URL
@@ -94,8 +94,8 @@ ignore: null
 
 # Extensions
 ## Plugins: https://hexo.io/plugins/
-## Themes: https://hexo.io/themes/
-theme: landscape
+## Themes: https://hexo.io/themes/  icarus
+theme: amazingremake
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
