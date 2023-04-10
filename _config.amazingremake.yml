@@ -1,0 +1,389 @@
+##########################################################
+#  Default configurations of amazingremake
+#
+#  IT'S NOT RECOMMENDED TO EDIT THIS FILE!
+#
+#  For developers:
+#  Some elements are provided by hexo-component-inferno.
+#  You can check the source code of this module.
+##########################################################
+
+# Version of the configuration file
+version: 4.0.0
+
+# Icarus theme variant, can be "default" or "cyberpunk"
+variant: default
+# 网站logo的路径或URL
+logo: ''
+
+# Page metadata configurations
+head:
+  # 网站图标的URL或路径
+  favicon: /img/T_emp.png
+  # Open Graph metadata
+  # https://hexo.io/docs/helpers.html#open-graph
+  open_graph:
+    # Page title (og:title) (optional)
+    # You should leave this blank for most of the time
+    title: 
+    # Page type (og:type) (optional)
+    # You should leave this blank for most of the time
+    type: 
+    # Page URL (og:url) (optional)
+    # You should leave this blank for most of the time
+    url: 
+    # Page cover (og:image) (optional)
+    # You should leave this blank for most of the time
+    image: 
+    # Site name (og:site_name) (optional)
+    # You should leave this blank for most of the time
+    site_name: 
+    # Page author (article:author) (optional)
+    # You should leave this blank for most of the time
+    author: 
+    # Page description (og:description) (optional)
+    # You should leave this blank for most of the time
+    description: 
+    # Twitter card type (twitter:card)
+    twitter_card: 
+    # Twitter ID (twitter:creator)
+    twitter_id: 
+    # Twitter Site (twitter:site)
+    twitter_site: 
+    # Google+ profile link (deprecated)
+    google_plus: 
+    # Facebook admin ID
+    fb_admins: 
+    # Facebook App ID
+    fb_app_id: 
+
+  # Structured data of the page
+  # https://developers.google.com/search/docs/guides/intro-structured-data
+  structured_data:
+    # Page title (optional)
+    # You should leave this blank for most of the time
+    title: 
+    # Page description (optional)
+    # You should leave this blank for most of the time
+    description: 
+    # Page URL (optional)
+    # You should leave this blank for most of the time
+    url: 
+    # Page author (article:author) (optional)
+    # You should leave this blank for most of the time
+    author: 
+    # Page images (optional)
+    # You should leave this blank for most of the time
+    image: 
+
+  # Additional HTML meta tags in an array
+  meta:
+    # Meta tags specified in <attribute>=<value> style.
+    # E.g., name=theme-color;content=#123456 => <meta name="theme-color" content="#123456">
+
+  # URL or path to the website's RSS atom.xml
+  rss: 
+
+# Page top navigation bar configurations
+navbar:
+    # 导航菜单项 
+    menu:
+        首页: /
+        文章归档: /archives
+        分类: /categories
+        标签: /tags
+        个人简介: /about
+        留言: /message
+    # 链接显示在导航栏的右侧
+    links:
+        Download on GitHub:
+            icon: fab fa-github
+            url: https://github.com/cccccrz
+
+# 页脚配置
+footer:
+    # Copyright text
+    # HTML code of copyright information in footer
+    copyright: © 版权说明：[本网站所有内容均收集于互联网或自己创作,<br />&nbsp;&nbsp;&nbsp;&nbsp;方便于网友与自己学习交流，如有侵权，请<a href="/message" target="_blank">留言</a>，立即处理]<br />
+
+    # 链接显示在页脚部分的右侧
+    links:
+        Download on GitHub:
+            icon: fab fa-github
+            url: https://github.com/cccccrz
+      
+  # Start time of this website in footer (omitted to be invisible)
+  # NOTE: The value will be passed in the constructor of the ``Date``
+  # object. Read the documentation on Date() constructor
+  # (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/ Global_Objects/Date/Date) for further information.
+  # Recommended form: yyyy/mm/dd hh:mm:ss or yyyy-mm-ddThh:mm:ss
+  # i.e. 1995/12/17 13:24:00 or 1995-12-17T13:24:00
+  #website_start_time: ''
+
+  # ICP licensing information in footer
+  #icp_licensing:
+  #  enabled: false
+  #  number: ''
+  #  url: 'https://beian.miit.gov.cn/'
+
+# 文章相关配置
+article:
+  # Code highlight settings
+  highlight:
+    enabled: true
+    # Code highlight themes
+    # https://github.com/highlightjs/highlight.js/tree/master/src/styles
+    theme: atom-one-light
+    # Show copy code button
+    clipboard: true
+    # Default folding status of the code blocks. Can be "", "folded", "unfolded"
+    fold: unfolded
+
+  # 是否显示估计的文章阅读时间
+  readtime: true
+
+  # Article licensing block
+  licenses:
+    Creative Commons:
+      icon: fab fa-creative-commons
+      url: https://creativecommons.org/
+    Attribution:
+      icon: fab fa-creative-commons-by
+      url: https://creativecommons.org/licenses/by/4.0/
+    Noncommercial:
+      icon: fab fa-creative-commons-nc
+      url: https://creativecommons.org/licenses/by-nc/4.0/
+
+# 侧栏配置。
+# 请注意，侧栏只有在至少有一个widget时才可见
+sidebar:
+  # Left sidebar configurations
+  left:
+    # 当页面滚动时，侧边栏是否粘在顶部
+    sticky: true
+  # Right sidebar configurations
+  right:
+    # Whether the sidebar sticks to the top when page scrolls
+    sticky: false
+
+# 侧栏widget配置
+# http://ppoffice.github.io/hexo-theme-icarus/categories/Widgets/
+widgets:
+  # 目录widget, Table of contents widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: left
+    type: toc
+    # Select show index
+    index: false
+    # Showing mode
+    # Available values:
+    # - 'pages_and_posts' (shown in pages and posts like that in the old version)
+    # - 'default' (not shown in pages and posts)
+    show_mode: pages_and_posts
+
+  # 个人信息widget,Profile widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: left
+    type: profile
+    # Author name
+    author: TTY
+    # Author title
+    author_title: 一个兴趣使然的coder
+    # Author's current location
+    location: 中国,江苏,南京
+    # URL or path to the avatar image
+    avatar: /img/head.jpg
+    # 是否显示圆形头像图像
+    avatar_rounded: false
+    # Email address for the Gravatar
+    gravatar:
+    # URL or path for the follow button
+    follow_link: 'https://github.com/cccccrz'
+    # Links to be shown on the bottom of the profile widget
+    social_links:
+        Github:
+            icon: fab fa-github
+            url: https://github.com/cccccrz
+      # Weibo:
+      #   icon: fab fa-weibo
+      #   url: ''
+      # Email:
+      #   icon: fa fa-envelope
+      #   url: ''
+      # Next:
+      #   icon: fab fa-dribbble
+      #   url: ''
+      # RSS:
+      #   icon: fas fa-rss
+      #   url: 
+    has_hitokoto: true
+    show_mode: default
+
+  # 推荐链接widget,Recommendation links widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: left
+    type: links
+    # Names and URLs of the sites
+    links:
+      Hexo: https://hexo.io
+    show_mode: default
+
+  # Latest comment widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: right
+    type: latest_comment
+    show_mode: default
+
+  # 最近提交，Recent posts widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: right
+    type: recent_posts
+    show_mode: default
+
+  # 类别目录，Categories widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: right
+    type: categories
+    show_mode: default
+
+  # 档案，Archives widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: right
+    type: archives
+    show_mode: default
+
+  # 标签，Tags widget configurations
+  -
+    # Where should the widget be placed, left sidebar or right sidebar
+    position: right
+    type: tags
+    show_mode: default
+
+# Plugin configurations
+# https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/
+plugins:
+  # 启用页面启动动画；Enable page startup animations
+  animejs: true
+  # 显示“返回顶部”按钮；Show the "back to top" button
+  back_to_top: true
+  # 百度分析插件设置；Baidu Analytics plugin settings
+  # https://tongji.baidu.com
+  baidu_analytics:
+    # Baidu Analytics tracking ID
+    tracking_id: 
+  # BuSuanZi网站/页面访问量计数器；BuSuanZi site/page view counter
+  # https://busuanzi.ibruce.info
+  busuanzi: true
+  # CNZZ统计；CNZZ statistics
+  # https://www.umeng.com/web
+  cnzz:
+    # CNZZ tracker id
+    id: 
+    # CNZZ website id
+    web_id: 
+  # Enable the lightGallery and Justified Gallery plugins
+  gallery: true
+  # Google Analytics plugin settings
+  # https://analytics.google.com
+  google_analytics:
+    # Google Analytics tracking ID
+    tracking_id: 
+  # Hotjar user feedback plugin
+  # https://www.hotjar.com/
+  hotjar:
+    # Hotjar site id
+    site_id: 
+  # Enable the KaTeX math typesetting support
+  # https://katex.org/
+  # WARNING: IT NEEDS MORE MAINTENANCE!
+  # katex: false
+  # Enable the MathJax math typesetting support
+  # https://www.mathjax.org/
+  mathjax: false
+  #  启用过时的浏览器插件；Enable the Outdated Browser plugin
+  # http://outdatedbrowser.com/
+  outdated_browser: false
+  # 在页面加载时，在页面顶部显示进度条；Show a progress bar at top of the page on page loading
+  progressbar: true
+
+# NOTE: Deprecated!
+# Search plugin configurations
+# https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Search/
+search:
+  type: insight
+
+# NOTE: Deprecated!
+# Comment plugin configurations
+# https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Comment/
+comment:
+  enabled: false
+  type: gitalk                  # Recommended: gitalk
+  language: zh-CN               # Localization language key, en, zh-CN and zh-TW are currently available.
+  owner: ''                     # (required) GitHub user name
+  repo: ''                      # (required) GitHub repository name
+  client_id: ''                 # (required) OAuth application client id
+  client_secret: ''             # (required) OAuth application client secret
+  admin: ['']
+  create_issue_manually: true
+  distraction_free_mode: false
+  has_hot_recommended: true     # Whether to show Hot Recommended
+  has_latest_comments: true     # Whether to show Latest Comments
+  proxy: ''                     # Solve HTTP 403 error after logged in
+
+# Donate plugin configurations
+# https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Donation/
+donates:
+  enabled: false
+  entries:
+    # Alipay donate button configurations
+    -
+      type: alipay
+      # Qrcode image URL
+      qrcode: ''
+    # WeChat donate button configurations
+    -
+      type: wechat
+      # Qrcode image URL
+      qrcode: ''
+    
+# Share plugin configurations
+# https://ppoffice.github.io/hexo-theme-icarus/categories/Plugins/Share/
+share:
+  enabled: false
+  type: sharethis
+  # URL to the ShareThis share plugin script
+  install_url: ''
+
+# CDN provider settings
+# https://ppoffice.github.io/hexo-theme-icarus/Configuration/icarus-user-guide-cdn-providers/
+providers:
+  # Name or URL template of the JavaScript and/or stylesheet CDN provider
+  cdn: loli
+  # Name or URL template of the webfont CDN provider
+  fontcdn: loli
+  # Name or URL of the fontawesome icon font CDN provider
+  iconcdn: loli
+  # URL prefix of assets from CDN
+  # my_cdn_pre: https://cdn.jsdelivr.net/gh/removeif/removeif-demo@v1.0.8/
+
+# NOTE: Deprecated!
+# NetEase Cloud Music playlist ID in footer (at the bottom of the webpage)
+side_music_netease_id: ''
+
+# NOTE: Deprecated!
+# (required: plugins.busuanzi: true) only calculate the statistics
+# from busuanzi without showing it when the value is true
+busuanzi_only_count: false
+
+# Whether to show the Live2D figure
+has_live_2D_switch: false
+
+# Whether to activate pjax plugin
+use_pjax: true
