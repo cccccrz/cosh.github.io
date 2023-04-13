@@ -140,7 +140,7 @@ article:
     fold: unfolded
 
   # 是否显示估计的文章阅读时间
-  readtime: true
+  readtime: false
 
   # Article licensing block
   licenses:
