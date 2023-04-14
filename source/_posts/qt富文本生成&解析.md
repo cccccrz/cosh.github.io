@@ -1,11 +1,9 @@
 ---
 title: qt富文本生成&解析
 tags:
-  - test1
-  - test2
+  - qt
 categories:
-  - test3
-  - test4
+  - qt
 toc: true
 recommend: 1
 keywords: categories-java
