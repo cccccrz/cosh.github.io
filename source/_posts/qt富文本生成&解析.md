@@ -1,5 +1,5 @@
 ---
-title: qt富文本解析
+title: qt富文本生成&解析
 tags:
   - test1
   - test2
@@ -9,7 +9,7 @@ categories:
 toc: true
 recommend: 1
 keywords: categories-java
-uniqueId: 2023-04-13 08:47:42/qt富文本解析.html
+uniqueId: 2023-04-13 08:47:42/qt富文本生成&解析.html
 mathJax: false
 date: 2023-04-13 16:47:42
 thumbnail:
@@ -172,4 +172,54 @@ void MyTextEdit::RemoveChar(const QPoint& pos) // pos 鼠标位置 event->pos()
     setTextCursor(tc);
 }
 ```
+
+</br>
+
+### 4.富文本解析
+
+QTextDocument的基本结构如图：
+
+<img src="https://cdn.jsdelivr.net/gh/cccccrz/cccccrz.github.io@main/source/img/QTextDocument_struct.png" style="zoom:50%;" />
+
+依次遍历便可解析：
+
+```cpp
+// 文本块处理
+void processBlock(const QTextBlock& textBlock)
+{
+    QTextCharFormat format;
+    for (auto it = textBlock.begin(); !it.atEnd(); ++it) {
+        if (!it.fragment().isValid()) continue;
+        // format里包含片段的属性，属性相同为一个片段，所以相邻的相同格式、名字的图片，只会有一个片段
+		format = it.fragment().charFormat();
+        // format.objectType() 自定义对象类型/qt对象类型
+        if (QTextFormat::ImageObject == format.objectType()) { // 图片
+            format.toImageFormat().name(); // QTextImageFormat() 图片format
+            //获取图片信息 QTextImageFormat::name() /width() /height()
+            
+        } else if (QTextFormat::NoObject == format.objectType()) { // 文本类型
+            it.fragment().text(); // 文本
+        }
+        //  else 其他文本对象类型 QTextFormat::UserObject + ...
+    }
+}
+
+// 文档处理
+void parseDocument(QTextDocument* doc)
+{
+    QTextBlock currentBlock = doc->begin();
+    while (currentBlock.isValid()) { // 是否有效， true 为有效
+        processBlock(currentBlock);
+        currentBlock = currentBlock.next();
+#if 0
+        // 如果需要判断是否换行
+        if (currentBlock.isValid()) {
+            // 此处换行
+        }
+#endif
+    }
+}
+```
+
+
 
