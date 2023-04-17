@@ -51,7 +51,7 @@ void CreateMenu(const QPoint& pos)
 
 
 
-默认的菜单事件
+**默认的菜单事件**
 
 `[virtual protected] void QWidget::contextMenuEvent(QContextMenuEvent *event)`
 

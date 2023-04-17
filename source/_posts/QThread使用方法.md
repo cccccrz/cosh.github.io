@@ -26,9 +26,9 @@ thumbnail:
 
 <!-- more -->
 
-##### example
+##### **example**
 
-方法1：
+**方法1：**
 
 ```cpp
  class WorkerThread : public QThread
@@ -52,7 +52,7 @@ thumbnail:
  }
 ```
 
-方法2：
+**方法2：**
 
 ```cpp
  class Worker : public QObject

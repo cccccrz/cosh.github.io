@@ -19,7 +19,7 @@ comments: false
 #### 博客信息
 
 ---
-+ 网站采用的默认主题~
++ 网站采用的`amazingremake`主题~
 
 <br>
 
@@ -27,13 +27,11 @@ comments: false
 
 ---
 **博客主题相关**
-+ [github Issue 作为博客微型数据库的应用](https://removeif.github.io/theme/github-Issue-作为博客微型数据库的应用.html)
-+ [github page网站cdn优化加速](https://removeif.github.io/theme/github-page网站cdn优化加速.html)
-+ [博客源码分享](https://removeif.github.io/theme/博客源码分享.html)
-+ [博客换肤的一种实现方式思路](https://removeif.github.io/theme/博客换肤的一种实现方式思路.html)
-+ [博客中gitalk最新评论的获取](https://removeif.github.io/theme/博客中gitalk最新评论的获取.html)
-+ [博客图片上传picgo工具github图传使用](https://removeif.github.io/theme/博客图片上传picgo工具github图传使用.html)
-+ [安装、部分配置icarus主题中文版](https://removeif.github.io/theme/安装、部分配置icarus主题中文版.html)
+
++ [博客源码分享](https://github.com/cccccrz/cccccrz.github.io)
++ [amazing](https://github.com/removeif/hexo-theme-amazing)
++ [Amazing Remake](https://github.com/LittleYe233/hexo-theme-amazingremake)
++ [从 GitHub 迁移到 jsDelivr](https://www.jsdelivr.com/github)
 
 <br>
 
@@ -46,11 +44,3 @@ comments: false
 - [krenx1983/think: 纯C语言跨平台开发框架](https://github.com/krenx1983/think)
 
 <br>
-
-**其他**
-
-+ [网易云音乐歌单分享](https://removeif.github.io/music1/)
-
-<br>
-
-#### 计划
