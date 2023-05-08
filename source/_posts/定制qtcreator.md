@@ -20,7 +20,7 @@ thumbnail:
 %appdata%\QtProject\qtcreator\styles
 ```
 
-![image-20230508120455888](D:\Document\GitHub\cccccrz.github.io\source\img\image-20230508120455888.png)
+![image-20230508120455888](https://cdn.jsdelivr.net/gh/cccccrz/cccccrz.github.io@main/source/img/image-20230508120455888.png)
 
 
 
@@ -36,4 +36,4 @@ thumbnail:
 
 ### 预览
 
-![image-20230508120328189](D:\Document\GitHub\cccccrz.github.io\source\img\image-20230508120328189.png)
+![image-20230508120328189](https://cdn.jsdelivr.net/gh/cccccrz/cccccrz.github.io@main/source/img/image-20230508120328189.png)
