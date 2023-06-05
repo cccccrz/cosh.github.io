@@ -16,6 +16,80 @@ thumbnail:
 
 <!-- more -->
 
+# 通信流 Communication Flow
+
+描述载具在自动连接期间进行的高级通信流程。
+
+- `LinkManager`总是有一个UDP端口打开等待车辆心跳
+- `LinkManager`检测到一个新的已知设备类型(Pixhawk, SiK Radio, PX4 Flow)，使UDP连接到计算机
+  - `LinkManager`在计算机和设备之间创建一个新的`SerialLink`
+- 来自链路的传入字节被发送到`MAVLinkProtocol`
+- `MAVLinkProtocol`将字节转换为MAVLink消息
+- 如果消息是`HEARTBEAT`，则通知`MultiVehicleManager`(多机管理类)
+- `MultiVehicleManager`收到`HEARTBEAT`的通知，并根据`HEARTBEAT`消息中的信息创建一个新的`vehicle `车辆对象
+- `vehicle`对象实例化与车辆匹配的插件
+- 与`vehicle`对象相关联的ParameterLoader发送一个 `PARAM_REQUEST_LIST`到连接的设备，以使用参数协议加载参数( to load parameters using the parameter protocol)
+- 参数加载完成后，与`vehicle`对象相关联的`MissionManager`使用任务协议(mission protocol)从连接的设备请求任务项(mission items)
+- 当参数加载完成后，`VehicleComponents`对象将在Setup视图中显示其UI
+
+
+
+# 插件架构设计 Plugin Architecture
+
+虽然MAVLink规范定义了与载具通信的标准通信协议。该规范的许多方面需要固件开发人员来解释。正因为如此，在许多情况下，为了完成相同的任务，与运行一个固件的车辆的通信与运行不同固件的车辆的通信略有不同。此外，每个固件可以实现MAVLink命令集的不同子集。
+
+另一个主要问题是MAVLink规范不包括载具配置或通用参数集。 因此，所有与车辆设置相关的代码最终都是固件特定的。此外，任何必须引用特定参数的代码也是特定于固件的。
+
+鉴于固件实现之间的所有这些差异，创建单个地面站应用程序可能非常棘手，可以支持每个应用程序而不会使代码库降级为基于车辆使用的固件在任何地方遍布的大量if / then / else语句。
+
+QGC使用插件架构将固件特定代码与所有固件通用代码隔离开来。有两个主要的插件可以完成这个 `FirmwarePlugin`和`AutoPilotPlugin `。
+
+自定义构建也使用此插件架构，以允许超出标准QGC所能提供的范围的进一步自定义。
+
+## FirmwarePlugin
+
+这是用来创建一个标准接口到Mavlink的部分，这通常是不标准化的。
+
+## AutoPilotPlugin
+
+这用于为车辆设置提供用户界面。
+
+## QGCCorePlugin
+
+这用于通过标准接口公开与车辆无关的QGC应用程序本身的特性。然后由自定义构建使用它来调整QGC特性集以满足其需求。
+
+
+
+# 类层次结构（上层）
+
+## (LinkManager)链接管理器类，(LinkInterface)链接接口类
+
+QGC中的“链接”是QGC与载具间的一种特定类型的通信管道，例如串行端口或基于WiFi的UDP端口。 `LinkInterface`为所有链接的基类。 每个链接都在它自己的线程上运行，并将字节发送到`MAVLinkProtocol`。
+
+`LinkManager`类所生成对象管理系统中的所有打开链接。 `LinkManager`还通过串行和UDP链接管理自动连接
+
+## MAVLink协议类
+
+系统中有一个MAVLink协议对象。 它的功能是从链接获取传入的字节并将它们转换为MAVLink消息。 MAVLink HEARTBEAT消息被分发到`MultiVehicleManager`(多机管理类)。 所有MAVLink消息都将分发到与链接相对应的载具。
+
+## (MultiVehicleManager)多机管理类
+
+系统中有一个`MultiVehicleManager`多机管理类生成的对象, 当它接收到一个新的心跳包(通过心跳包里面的系统ID识别)，它会自动生成一个载具对象，来表示一个新的载具加入到系统。`MultiVehicleManager`还可以保持对系统中所有载具的跟踪，对于激活状态的载具可以自由切换，而对于正在被移除的也能够正确处理。
+
+## (Vehicle)载具类
+
+`Vehicle`类所生成的对象是QGC代码与物理载具通信的主要接口。
+
+注意：还有一个与每个Vehicle相关联的UAS对象，这是一个已弃用的类，并且正逐渐被逐步淘汰，所有功能都转移到`Vehicle`类。 这里不应该添加新代码。
+
+## (FirmwarePlugin)固件插件类，( FirmwarePluginManager)固件插件管理器类
+
+`FirmwarePlugin`类为固件插件的基类。 固件插件包含固件特定代码，因此`Vehicle`对象相对于它是识别的，支持UI的单个标准接口。
+
+`FirmwarePluginManager`是一个工厂类，它根据`Vehicle`类的成员`MAV_AUTOPILOT / MAV_TYPE`组合创建`FirmwarePlugin`类的实例。
+
+
+
 #  用户界面设计
 
 QGC中UI设计的主要模式是用QML编写的UI页面，多次与用C ++编写的自定义“Controller”进行通信。 这种设计模式有点沿用MVC设计模式，但也有显著不同之处。
@@ -91,11 +165,11 @@ import QGroundControl.Controls 1.0
 
 - QGCButton
 - QGCCheckBox
-- QGColoredImage
+- QGCColoredImage
 - QGCComboBox
-- QGC可轻弹
+- QGCFlickable
 - QGCLabel
-- QGCM可操作项
+- QGCMovableItem
 - QGCRadioButton
 - QGCSlider
 - QGCTextField
@@ -107,7 +181,7 @@ import QGroundControl.Controls 1.0
 - DropButton - RoundButton，单击时会删除一组选项。 示例是平面视图中的同步按钮。
 - ExclusiveGroupItem - 用于支持QML ExclusiveGroup 概念的自定义控制的基础项目。
 - QGCView - 系统中所有顶级视图的基本控件。 提供对FactPanels的支持并显示QGCViewDialogs和QGCViewMessages。
-- QGC View对话框 - 从QGC视图右侧弹出的对话框。 您可以指定对话框的接受/拒绝按钮以及对话框内容。 使用示例是当您单击某个参数并显示值编辑器对话框时。
+- QGCViewDialog - 从QGC视图右侧弹出的对话框。 您可以指定对话框的接受/拒绝按钮以及对话框内容。 使用示例是当您单击某个参数并显示值编辑器对话框时。
 - QGCViewMessage - QGCViewDialog的简化版本，允许您指定按钮和简单的文本消息。
 - QGCViewPanel - QGCView内部的主要视图内容。
 - RoundButton - 一个圆形按钮控件，它使用图像作为其内部内容。
@@ -133,17 +207,13 @@ Fact System(事实系统)提供一组标准化和简化QGC用户界面创建的�
 
 ## FactGroup（事实小组）
 
-事实*组*是一组[事实](https://dev.qgroundcontrol.com/master/zh/fact_system.html#fact)。它用于组织事实和管理用户定义的事实。
+FactGroup是一组Facts。它用于组织事实和管理用户定义的Fact。
 
 ## 自定义构建支持
 
-用户定义的事实可以通过覆盖自定义固件插件类中的函数来添加。这些函数返回用于标识添加的事实组的名称到事实组映射。可以通过扩展类来添加自定义事实数据组。FactMetaDatas可以通过提供包含必要信息的json文件来使用适当的构造函数来定义。`factGroups``FirmwarePlugin``FactGroup``FactGroup`
+用户定义的`Fact`可以通过在自定义固件插件类中覆盖`FirmwarePlugin`的`factGroups`函数来添加。这些函数返回事实组映射的名称，该名称用于标识添加的事实组。可以通过扩展`FactGroup`类来添加自定义事实组。通过提供包含必要信息的json文件，可以使用适当的`FactGroup`构造函数来定义`FactMetaData`。通过重写`FirmwarePlugin`类的`adjustMetaData`，也可以更改现有事实的元数据。与车辆相关的Fact(包括属于车辆固件插件的`factGroups`函数返回的事实组的事实)可以使用`getFact(“factName”)`或`getFact(“factGroupName.factName”)`
 
-也可以通过覆盖类来更改现有事实的元数据。`adjustMetaData``FirmwarePlugin`
-
-可以使用或访问与车辆相关的事实（包括属于车辆固件插件返回的事实组的事实）`factGroups``getFact("factName")``getFact("factGroupName.factName")`
-
-有关其他信息，请参阅[固件插件中的](https://github.com/mavlink/qgroundcontrol/blob/v4.0.8/src/FirmwarePlugin/FirmwarePlugin.h)注释。
+获取更多信息，请参阅FirmwarePlugin.h中的注释。
 
 
 
@@ -186,41 +256,41 @@ QGC 创建用户界面，用于从 json 元数据的层次结构中动态编辑�
 
 您可以在这里看到`MAV_CMD_NAV_WAYPOINT`根目录[json](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoCommon.json#L27)的示例：
 
-```
-        {
-            "id":                   16,
-            "rawName":              "MAV_CMD_NAV_WAYPOINT",
-            "friendlyName":         "Waypoint",
-            "description":          "Travel to a position in 3D space.",
-            "specifiesCoordinate":  true,
-            "friendlyEdit":         true,
-            "category":             "Basic",
-            "param1": {
-                "label":            "Hold",
-                "units":            "secs",
-                "default":          0,
-                "decimalPlaces":    0
-            },
-            "param2": {
-                "label":            "Acceptance",
-                "units":            "m",
-                "default":          3,
-                "decimalPlaces":    2
-            },
-            "param3": {
-                "label":            "PassThru",
-                "units":            "m",
-                "default":          0,
-                "decimalPlaces":    2
-            },
-            "param4": {
-                "label":            "Yaw",
-                "units":            "deg",
-                "nanUnchanged":     true,
-                "default":          null,
-                "decimalPlaces":    2
-            }
-        },
+```json
+{
+    "id":                   16,
+    "rawName":              "MAV_CMD_NAV_WAYPOINT",
+    "friendlyName":         "Waypoint",
+    "description":          "Travel to a position in 3D space.",
+    "specifiesCoordinate":  true,
+    "friendlyEdit":         true,
+    "category":             "Basic",
+    "param1": {
+        "label":            "Hold",
+        "units":            "secs",
+        "default":          0,
+        "decimalPlaces":    0
+    },
+    "param2": {
+        "label":            "Acceptance",
+        "units":            "m",
+        "default":          3,
+        "decimalPlaces":    2
+    },
+    "param3": {
+        "label":            "PassThru",
+        "units":            "m",
+        "default":          0,
+        "decimalPlaces":    2
+    },
+    "param4": {
+        "label":            "Yaw",
+        "units":            "deg",
+        "nanUnchanged":     true,
+        "default":          null,
+        "decimalPlaces":    2
+    }
+},
 ```
 
 注意：在现实中，基于此的信息应由 mavlink 本身提供，而不需要成为 GCS 的一部分。
@@ -257,12 +327,12 @@ QGC 创建用户界面，用于从 json 元数据的层次结构中动态编辑�
 
 层次结构的下一个层级是通用的 mavlink，但只针对特定的车辆。 这里的Json文件：[MR](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoMultiRotor.json), [FW](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoFixedWing.json), [ROVER](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoRover.json), [Sub](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoSub.json), [VTOL](https://github.com/mavlink/qgroundcontrol/blob/master/src/MissionManager/MavCmdInfoVTOL.json)。 这个是重写（固定翼）　
 
-```
-        {
-            "id":           16,
-            "comment":      "MAV_CMD_NAV_WAYPOINT",
-            "paramRemove":  "4"
-        },
+```json
+{
+    "id":           16,
+    "comment":      "MAV_CMD_NAV_WAYPOINT",
+    "paramRemove":  "4"
+},
 ```
 
 这样做是删除参数4的编辑 UI，固定翼没有使用航向（Yaw）参数。 由于这是根的叶节点，因此无论固件类型如何，这都适用于所有固定翼车辆。
@@ -273,22 +343,22 @@ QGC 创建用户界面，用于从 json 元数据的层次结构中动态编辑�
 
 [ArduPilot](https://github.com/mavlink/qgroundcontrol/blob/master/src/FirmwarePlugin/APM/MavCmdInfoCommon.json#L6)：
 
-```
-        {
-            "id":           16,
-            "comment":      "MAV_CMD_NAV_WAYPOINT",
-            "paramRemove":  "2"
-        },
+```json
+{
+    "id":           16,
+    "comment":      "MAV_CMD_NAV_WAYPOINT",
+    "paramRemove":  "2"
+},
 ```
 
 [PX4](https://github.com/mavlink/qgroundcontrol/blob/master/src/FirmwarePlugin/PX4/MavCmdInfoCommon.json#L7)：
 
-```
-        {
-            "id":           16,
-            "comment":      "MAV_CMD_NAV_WAYPOINT",
-            "paramRemove":  "2,3"
-        },
+```json
+{
+    "id":           16,
+    "comment":      "MAV_CMD_NAV_WAYPOINT",
+    "paramRemove":  "2,3"
+},
 ```
 
 您可以看到，对于两个固件参数参数2，即接受半径，从编辑 ui 中删除。 这是QGC的特性决定。 与指定值相比，使用固件通用接受半径会更加安全和容易。 因此，我们决定对用户隐藏它。
@@ -301,12 +371,12 @@ QGC 创建用户界面，用于从 json 元数据的层次结构中动态编辑�
 
 [ArduPilot/MR](https://github.com/mavlink/qgroundcontrol/blob/master/src/FirmwarePlugin/APM/MavCmdInfoMultiRotor.json#L7):
 
-```
-        {
-            "id":           16,
-            "comment":      "MAV_CMD_NAV_WAYPOINT",
-            "paramRemove":  "2,3,4"
-        },
+```JSON
+{
+    "id":           16,
+    "comment":      "MAV_CMD_NAV_WAYPOINT",
+    "paramRemove":  "2,3,4"
+},
 ```
 
 在这里你可以看到，ArduPilot的多电机车辆参数2/3/4 Acceptance/PassThru/Yaw 已被移除。 例如，航向（Yaw）是因为不支持所以被移除。 由于此代码的工作原理的怪癖，您需要从较低级别重复重写。
@@ -392,14 +462,14 @@ QGroundControl主要为自动驾驶开发人员提供了许多工具。 这些�
 
 工具包括：
 
-- 模拟链接（仅限每日构建） - 创建和停止多个模拟载具链接。
-- 重播飞行数据 - 重播遥测日志（用户指南）。
-- MAVLink Inspector - 显示收到的MAVLink消息/值。
-- MAVLink分析器 - 绘制MAVLink消息/值的趋势图。
-- 自定义命令小组件 - 在运行时加载自定义/测试QML UI。
-- 板载文件 - 导航车辆文件系统和上载/下载文件。
-- HIL Config Widget - HIL模拟器的设置.
-- MAVLink控制台（仅限PX4） - 连接到PX4 nsh shell并发送命令。
+- **Mock Link** 模拟链接（仅限每日构建） - 创建和停止多个模拟载具链接。
+- **Replay Flight Data** 重播飞行数据 - 重播遥测日志（用户指南）。
+- **MAVLink Inspector** - 显示收到的MAVLink消息/值。
+- **MAVLink Analyzer** - 绘制MAVLink消息/值的趋势图。
+- **Custom Command Widget** 自定义命令小组件 - 在运行时加载自定义/测试QML UI。
+- **Onboard Files** 板载文件 - 导航车辆文件系统和上载/下载文件。
+- **HIL Config Widget** - HIL模拟器的设置.
+- **MAVLink Console**（仅限PX4） - 连接到PX4 nsh shell并发送命令。
 
 ### 模拟链接
 
@@ -468,19 +538,22 @@ Linux终端：
 
 ## 选项
 
-选项/命令行参数列在下表中。
+下表列出了选项/命令行参数。
 
-| 选项 | 描述 |
-| ---- | ---- |
-| `    |      |
+| Option                                                    | Description                                                  |
+| --------------------------------------------------------- | ------------------------------------------------------------ |
+| `--clear-settings`                                        | 清除应用程序设置(将QGroundControl恢复到默认设置)。           |
+| `--logging:full`                                          | 打开完整日志记录。参见 [Console Logging](https://docs.qgroundcontrol.com/en/SettingsView/console_logging.html#logging-from-the-command-line). |
+| `--logging:full,LinkManagerVerboseLog,ParameterLoaderLog` | 打开完整日志记录并关闭以下以逗号分隔的日志记录选项。         |
+| `--logging:LinkManagerLog,ParameterLoaderLog`             | 打开指定的以逗号分隔的日志记录选项                           |
+| `--unittest:name`                                         | (Debug builds only)运行指定的单元测试。去掉“:name”以运行所有测试。 |
+| `--unittest-stress:name`                                  | (Debug builds only)连续运行指定的单元测试20次。去掉:运行所有测试的名称。 |
+| `--fake-mobile`                                           | 模拟在移动设备上运行。                                       |
+| `--test-high-dpi`                                         | 模拟在高DPI设备上运行                                        |
 
-clear-settings`| 清除应用程序设置（将QGroundControl恢复为默认设置）。 | |`logging:full`| 打开完整日志记录。 请参阅控制台日志记录 | |`logging:full,LinkManagerVerboseLog,ParameterLoaderLog`| 打开完整日志记录并关闭以下列出的以逗号分隔的日志记录选项。 | |`--llogging:LinkManagerLog,ParameterLoaderLog`| 打开指定的逗号分隔日志记录选项 | |`--unittest:name`| （仅限Debug构建）运行指定单元测试。 离开：运行所有测试的名称。 | |`--unittest-stress:name`| （仅限调试版本）连续运行指定的单元测试20次。 离开：运行所有测试的名称。 | |`-fake-mobile`| 模拟在移动设备上运行。 | |`--test-high-dpi` | 模拟在高DPI设备上运行QGroundControl。 |
-
-笔记：
+Notes:
 
 - 单元测试自动包含在调试版本中（作为QGroundControl的一部分）。 QGroundControl在单元测试的控制下运行（它不能正常启动）。
-
-
 
 
 
@@ -509,13 +582,9 @@ QGC 中有一个插件架构，允许这种自定义构建创建。它们可以�
 
 QGC内部还有“高级模式”的概念。而标准 QGC 构建始终在高级模式下运行。自定义构建始终以常规/非高级模式启动。构建中有一种更简单的机制可以打开高级模式，即相当快地连续单击 5 次飞行视图按钮。如果在自定义版本中执行此操作，则会警告您进入高级模式。这里的概念是隐藏普通用户不应该在高级模式后面访问的内容。例如，商用车将不需要访问大多数面向DIY设置的设置页面。因此，自定义构建可以隐藏这一点。自定义示例代码演示如何执行此操作。
 
-如果您想了解可能性，第一步是通读那些记录可能性的文件。接下来查看 [
+如果您想了解可能性，第一步是通读那些记录可能性的文件。接下来查看[' custom-example '](https://github.com/mavlink/qgroundcontrol/tree/master/custom-example)源代码，包括[README](https://github.com/mavlink/qgroundcontrol/blob/master/custom-example/README.md)
 
-```
-custom-example](https://github.com/mavlink/qgroundcontrol/tree/master/custom-example) source code including the 
-```
 
-[自述文件](https://github.com/mavlink/qgroundcontrol/blob/master/custom-example/README.md)。
 
 ## 自定义构建的初始存储库设置
 
@@ -559,7 +628,7 @@ QGC 源代码术语中的“资源”是指[在 qgroundcontrol.qrc](https://gith
 
 ### 生成标准 QGC 资源文件的新修改版本
 
-这是使用 python 脚本完成的。它将读取上游和文件以及相应的排除文件，并在自定义目录中输出这些文件的新版本。这些新版本将没有您指定要排除的资源。自定义生成的构建系统使用这些生成的文件（如果存在）而不是上游版本进行构建。这些文件的生成版本应添加到存储库中。此外，每当在自定义存储库中更新 QGC 的上游部分时，都必须重新运行以生成文件的新版本，因为上游资源可能已更改。`updateqrc.py``qgroundcontrol.qrc``qgcresources.qrc``python updateqrc.py`
+这是使用python脚本`updateqrc.py` 完成的。它将读取上游 `qgroundcontrol.qrc` 和`qgcresources.qrc`和相应的 exclusion files，并在自定义目录中输出这些文件的新版本。这些新版本将不包含指定要排除的资源。定制构建的构建系统使用这些生成的文件(如果存在的话)来代替上游版本进行构建。这些文件的生成版本应该添加到您的repo中。此外，每当您在自定义repo中更新QGC的上游部分时，您必须重新运行`python updateqrc.py`以生成新版本的文件，因为上游资源可能已经更改。
 
 ### 自定义构建示例
 
@@ -576,15 +645,228 @@ QGC 源代码术语中的“资源”是指[在 qgroundcontrol.qrc](https://gith
 - [工具栏自定义](https://dev.qgroundcontrol.com/master/zh/custom_build/Toolbar.html)
 - [飞视图定制](https://dev.qgroundcontrol.com/master/zh/custom_build/FlyView.html)
 
-## MAVLink 定制
 
-QGC使用MAVLink与飞行堆栈进行通信，[MAVLink](https://mavlink.io/en/)是一种非常轻量级的消息传递协议，专为无人机生态系统而设计。QGC默认包含[ArduPilotMega](https://mavlink.io/en/messages/ardupilotmega.html).xml方言，允许它与PX4和Ardupilot进行通信（PX4使用[common.xml](https://mavlink.io/en/messages/common.html)，这在ArduPilotMega中包括）。
 
-为了添加对一组新消息的支持，您最终需要将它们添加到或，或分叉*QGroundControl*并包含您自己的方言。`ArduPilotMega.xml common.xml`
+# 首次运行提示
 
-为此：
+当QGC第一次启动时，它会提示用户指定一些初始设置。在撰写本文档时，它们是:
 
-- 替换 /[qgroundcontrol/libs/mavlink/include/mavlink](https://github.com/mavlink/qgroundcontrol/tree/master/libs/mavlink/include/mavlink) 中的预构建 C 库。
-  - 默认情况下，这是一个子模块导入 https://github.com/mavlink/c_library_v2
-  - 您可以更改子模块，或使用 MAVLink 工具链[构建自己的库](https://mavlink.io/en/getting_started/generate_libraries.html)。
-- 您可以通过在运行 *qmake* 时将其设置为[`MAVLINK_CONF`](https://github.com/mavlink/qgroundcontrol/blob/master/QGCExternalLibs.pri#L52)来更改使用的整个方言。
+- 单位设置-用户希望使用什么单位来显示。
+
+- 离线车辆设置-未连接车辆时创建计划的车辆信息。
+
+自定义构建体系结构包括用于自定义构建的机制，以覆盖这些提示的显示和/或创建您自己的首次运行提示。
+
+## 首次运行提示对话框
+
+每个首次运行提示符都是一个简单的对话框，可以向用户显示ui。特定的对话框是否已经显示给用户存储在一个设置中。下面是上游第一次运行提示对话框的代码:
+
+- [Units Settings](https://github.com/mavlink/qgroundcontrol/blob/master/src/FirstRunPromptDialogs/UnitsFirstRunPrompt.qml)
+- [Offline Vehicle Settings](https://github.com/mavlink/qgroundcontrol/blob/master/src/FirstRunPromptDialogs/OfflineVehicleFirstRunPrompt.qml)
+
+## 标准的首次运行提示对话框
+
+每个对话框都有一个唯一的ID。当该对话框显示给用户时，该ID被注册为已经显示过，因此它只发生一次(除非您清除设置)。包含在上游QGC中的首次运行提示符集被认为是“标准”集。QGC从` QGCCorePlugin::first strunpromptstdids` 调用中获取要显示的标准提示列表。
+
+```cpp
+    /// Returns the standard list of first run prompt ids for possible display. Actual display is based on the
+    /// current AppSettings::firstRunPromptIds value. The order of this list also determines the order the prompts
+    /// will be displayed in.
+    virtual QList<int> firstRunPromptStdIds(void);
+```
+
+如果想隐藏其中一些，可以在自定义构建中重写此方法。
+
+## 自定义首次运行提示对话框
+
+自定义构建可以根据需要创建自己的一组额外的首次运行提示，通过使用以下QGCCorePlugin方法重写:
+
+```cpp
+    /// Returns the custom build list of first run prompt ids for possible display. Actual display is based on the
+    /// current AppSettings::firstRunPromptIds value. The order of this list also determines the order the prompts
+    /// will be displayed in.
+    virtual QList<int> firstRunPromptCustomIds(void);
+    /// Returns the resource which contains the specified first run prompt for display
+    Q_INVOKABLE virtual QString firstRunPromptResource(int id);
+```
+
+您的QGCCorePlugin应该覆盖这两个方法，并为新的首次运行提示符的id提供静态常量。看看标准集是如何实现的，并采用相同的方法。
+
+## 显示顺序
+
+显示给用户的第一次运行提示的集合是按照 `QGCCorePlugin::first strunpromptstdids` 和 `QGCCorePlugin::first strunpromptcustomids` 返回的顺序，在自定义提示之前显示标准提示。只显示以前没有显示给用户的提示。
+
+## 始终打开提示
+
+通过在提示ui实现中设置 `markAsShownOnClose: false` 属性，你可以创建一个每次QGC启动时都会显示的提示符。这可以用于向用户显示使用提示之类的事情。如果您这样做，最好确保最后显示它。
+
+
+
+# 定制工具栏
+
+可以通过多种方式定制工具栏，以满足您的定制构建需求。工具栏内部由从左到右的几个部分组成:
+
+- View Switching
+- Indicators
+  - App Indicators
+  - Vehicle Indicators
+  - Vehicle Mode Indicators
+- Connection Management
+- Branding
+
+根据当前显示的视图，Indicators “指标”部分有所不同:
+
+- Fly View - 显示所有指标
+- Plan View - 不显示任何指示器，并且有自己的自定义指示器部分用于计划状态值
+- Other Views - 不显示车辆模式指示
+
+## 定制的可能性
+
+### 指示器
+
+您可以添加自己的指标显示或删除任何上游指标。您使用的机制取决于指示器类型。
+
+#### App Indicators
+
+这些向用户提供的信息与车辆无关。例如RTK状态。使用 `QGCPlugin::toolbarIndicators` 来操作应用程序指标列表
+
+#### Vehicle Indicators
+
+这些是与车辆信息相关的指示器。它们只有在车辆联网时才可用。要操作车辆指标列表，您可以覆盖 `FirmwarePlugin::toolIndicators` 。
+
+#### Vehicle Mode Indicators
+
+这些是与车辆信息相关的指示器。它们需要Fly View提供的额外UI来完成它们的操作。Arming and Disarming《武装与解除武装》就是一个例子。它们只有在车辆联网时才可用。要操作车辆模式指标列表，您可以覆盖`FirmwarePlugin::modeIndicators` 。
+
+### 修改工具栏UI本身
+
+这是通过在与工具栏关联的qml文件上使用资源覆盖来实现的。这提供了高级别的定制，但也增加了复杂性。工具栏的主要用户界面在 `MainToolBar.qml` 中。主窗口代码`MainRootWindow.qml`与工具栏交互，根据当前视图显示不同的指示符部分，以及模式指示符是否显示也基于当前视图。
+
+如果你想完全控制工具栏，那么你可以重写`MainToolBar.qml`，并制作自己完全不同的版本。您需要特别注意主工具栏与`MainRootWindow.qml`的交互。因为您将需要在自己的自定义版本中复制这些交互。
+
+工具栏有两个标准的指示器ui部分:
+
+#### `MainToolBarIndicators.qml`
+
+这用于除Plan之外的所有视图。以一行方式显示所有指标。虽然您可以覆盖这个文件，但实际上它除了为指示器布局之外并没有做什么。
+
+#### `PlanToolBarIndicators.qml`
+
+Plan视图使用它来显示状态值。如果您想更改ui，您可以覆盖该文件并提供您自己的自定义版本。
+
+
+
+# 飞行视图定制
+
+Fly View是这样设计的，它可以从简单到更复杂的多种方式进行定制。它被设计成三个独立的层，每个层都是可定制的，提供不同级别的更改
+
+## Layers
+
+- 从上到下视觉上有三层:
+  - [`FlyView.qml`](https://github.com/mavlink/qgroundcontrol/blob/master/src/FlightDisplay/FlyView.qml) 这是ui和业务逻辑的基础层，用于控制地图和视频切换。
+  - [`FlyViewWidgetsOverlay.qml`](https://github.com/mavlink/qgroundcontrol/blob/master/src/FlightDisplay/FlyViewWidgetLayer.qml) 这一层包括飞行视图的所有剩余小部件。
+  - [`FlyViewCustomLayer.qml`](https://github.com/mavlink/qgroundcontrol/blob/master/src/FlightDisplay/FlyViewCustomLayer.qml) 这是一个图层，您可以使用资源覆盖来添加自己的自定义图层。
+
+### Inset Negotiation using `QGCToolInsets`
+
+Fly View的一个重要方面是，它需要了解它的地图窗口中间有多少中央空间，这些空间没有被窗口边缘的ui小部件所阻碍。当车辆从视野中消失时，它会利用这些信息平移地图。这不仅需要对窗口边缘进行操作，还需要对小部件本身进行操作，以便地图在进入小部件下面之前平移。
+
+这是通过使用[` QGCToolInsets` ](https://github.com/mavlink/qgroundcontrol/blob/master/src/QmlControls/QGCToolInsets.qml)对象包含在每一层。该对象为每个窗口边缘提供插入信息，告知系统基于边缘的ui占用了多少空间。每个图层都通过`parentToolInsets`获得下面图层的插图，然后通过“toolInsets”报告新的插图，考虑到下面的图层和它自己的添加。然后将最终结果总插入值提供给地图，以便它可以做正确的事情。理解这一点的最好方法是查看上游和自定义示例代码。
+
+### `FlyView.qml`
+
+从ui交互和业务逻辑来看，视图的基础层也是最复杂的。它包括地图和视频的主要显示元素以及引导控件。尽管您可以覆盖此层，但不建议这样做。如果你这样做，你最好真的知道你在做什么。它是一个单独的层的原因是使上面的层更简单，更容易定制。
+
+### `FlyViewWidgetsOverlay.qml`
+
+这一层包含飞行视图的所有剩余控件。你可以通过使用[ `QGCFlyViewOptions `](https://github.com/mavlink/qgroundcontrol/blob/master/src/api/QGCOptions.h)隐藏控件。但是，为了更改上游控件的布局，您必须使用资源覆盖。如果你查看源代码，你会发现控件本身被很好地封装，因此创建自己的重写来重新定位它们和/或添加自己的ui应该不是那么困难。同时保持与控件的上游实现的连接。
+
+### `FlyViewCustomLayer.qml`
+
+这为Fly View提供了最简单的自定义能力。允许您添加ui元素，添加到现有的上游控件。上游代码没有添加ui元素，它是您自己的自定义代码的基础，用作此qml的资源覆盖。自定义示例代码为您提供了如何执行此操作的示例。
+
+## 推荐规范
+
+### 简单的定制
+
+最好的开始是使用自定义层覆盖加上关闭widget层的ui元素(如果需要的话)。如果可能的话，我建议只坚持这样做。它提供了最大的能力，不会被下面层中的上游更改搞砸。
+
+### 中等复杂度定制
+
+如果你真的需要重新定位上游ui元素，那么你唯一的选择是重写 `flyviewwidgetoverlay .qml` 。通过这样做，您可以将自己与上游变化保持一定距离。尽管您仍然可以免费获得上游控件的更改。如果有一个全新的控件被添加到飞行视图的上游，你不会得到它，直到你把它添加到你自己的覆盖。
+
+### 高度复杂的定制
+
+最后也是最不推荐的定制机制是重写 `FlyView.qml` 。通过这样做，您将进一步远离免费获得上游更改
+
+
+
+# 自定义构建的发布过程[WIP文档]
+
+创建您自己的自定义构建的一个更棘手的方面是使其与常规QGC保持同步的过程。本文档描述了建议遵循的流程。但实际上，我们欢迎您为定制构建使用任何分支和发布策略。
+
+## Upstream QGC release/branching strategy
+
+The best place to start is understanding the mechanism QGC uses to do it's own releases. We will layer a custom build release process on top of that. You can find standard QGC [release process here](https://dev.qgroundcontrol.com/master/en/ReleaseBranchingProcess.html).
+
+## Custom build/release types
+
+Regular QGC has two main build types: Stable and Daily. The build type for a custom build is more complex. Throughout this discussion we will use the term "upstream" to refer to the main QGC repo (https://github.com/mavlink/qgroundcontrol). Also when we talk about a "new" upstream stable release, this means a major/minor release, not a patch release.
+
+### Synchronized Stable
+
+This type of release is synchronized with the release of an upstream stable. Once QGC releases stable you then release a version of your custom build which is based on this stable. This build will include all the new features from upstream including the new feature in your own custom code.
+
+### Out-Of-Band Stable
+
+This a subsequent release of your custom build after you have released a synchronized stable but prior to upstream releasing a new stable. It only includes new features from your own custom build and include no new features from upstream. Work on this type of release would occur on a branch which is either based on your latest synchronized stable or your last out of band release if it exists. You can release out of band stable releases at any time past your first synchronized stable release.
+
+### Daily
+
+Your custom daily builds are built from your branch. It is important to keep your custom master up to date with QGC master. If you lag behind you may be surprised by upstream features which require some effort to integrate with your build. Or you may even require changes to "core" QGC in order to work with your code. If you don't let QGC development team know soon enough, it may end up being too late to get things changed.`master`
+
+## Options for your first build
+
+### Starting with a Synchronized Stable release
+
+It is suggested that you start with releasing a Synchronized Stable. This isn't necessary but it is the simplest way to get started. To set your self up for a synchronized stable you create your own branch for development which is based on the upstream current stable.
+
+### Starting with Daily builds
+
+The reason why you may consider this as your starting point is because you need features which are only in upstream master for your own custom builds. In this case you will have to live with releasing custom Daily builds until the next upstream stable. At which point you would release you first Synchronized Stable. For this setup you use your master branch and keep it in sync with upstream master as you develop.
+
+## After you release your first Synchronized Stable
+
+### Patch Releases
+
+As upstream QGC does patch releases on Stable you should also release your own patch releases based on upstream to keep your stable up to date with latest criticial bug fixes.
+
+### Out-Of-Band, Daily: One or the other or both?
+
+At this point you can decide which type of releases you want to follow. You can also decide to possibly do both. You can do smaller new features which don't require new upstream features using out of band releases. And you can do major new feature work as daily/master until the point you can do a new synchronized stable.
+
+
+
+# MAVLink 定制
+
+QGC使用[MAVLink](https://mavlink.io/en/)与飞行堆栈通信，这是一种为无人机生态系统设计的非常轻量级的消息传递协议。QGC默认包含[ArduPilotMega.xml](https://mavlink.io/en/messages/ardupilotmega.html)语言，它允许它与PX4和Ardupilot (PX4使用[common.xml](https://mavlink.io/en/messages/common.html)，它包含在ArduPilotMega中)进行通信。
+
+为了增加对一组新消息的支持，您最终需要将它们添加到或分叉*QGroundControl*并包含您自己的语言。`ArduPilotMega.xml` `common.xml`
+
+To do this:
+
+- 替换预构建的C库[/qgroundcontrol/libs/mavlink/include/mavlink](https://github.com/mavlink/qgroundcontrol/tree/master/libs/mavlink/include/mavlink)。
+
+  - 默认情况下，这是一个子模块导入https://github.com/mavlink/c_library_v2
+
+  - 你可以改变子模块，或[建立自己的库](https://mavlink.io/en/getting_started/generate_libraries.html)使用MAVLink工具链。
+
+- 当运行*qmake*时，您可以通过在[`MAVLINK_CONF`](https://github.com/mavlink/qgroundcontrol/blob/master/QGCExternalLibs.pri#L52)中设置所使用的整个语言。
+
+
+
+
+
+## 参考链接：
+
+[Overview · QGroundControl Developer Guide](https://dev.qgroundcontrol.com/master/en/)
