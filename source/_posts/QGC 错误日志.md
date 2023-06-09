@@ -15,7 +15,9 @@ date: 2023-06-9 13:56:24
 thumbnail:
 ---
 
-<!-- more -->
+> 记录QGC二次开发遇到的一些问题
+>
+> <!-- more -->
 
 ### Q&A
 
@@ -27,6 +29,6 @@ thumbnail:
 
 相关链接：[GCC 11 的构建错误（原子作为易失性和循环构造） ·问题 #9669 ·马夫林克/Q地面控制 ·GitHub](https://github.com/mavlink/qgroundcontrol/issues/9669)
 
-
+新版本官方已修复
 
 2.
