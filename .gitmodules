@@ -1,0 +1,3 @@
+[submodule "themes/amazingremake"]
+	path = themes/amazingremake
+	url = https://github.com/LittleYe233/hexo-theme-amazingremake.git
