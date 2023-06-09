@@ -2,9 +2,10 @@
 title: qml学习-1
 tags:
   - qt
-  - qml
+  - QML
 categories:
   - qt
+  - QML
 toc: true
 recommend: 1
 keywords: categories-java
@@ -26,14 +27,14 @@ thumbnail:
 Window {
     id: window
     // 动态绑定
-    property int number = window.width
+    property int number: window.width
     property var obj
     // 别名
-	property alias windowWidth: window.width
-	// 窗口构建完成的槽
-	Component.onCompleted: {
-		
-	}
+    property alias windowWidth: window.width
+    // 窗口构建完成的槽
+    Component.onCompleted: {
+
+    }
 }
 ```
 

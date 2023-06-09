@@ -2,19 +2,21 @@
 title: QGC架构设计
 tags:
   - qt
+  - QGC
 categories:
   - qt
+  - QGC
 toc: true
 recommend: 1
 keywords: categories-java
 uniqueId: 2023-05-10 10:56:24/QGC架构.html
 mathJax: false
 date: 2023-05-10 18:56:24
-thumbnail:
 ---
-[TOC]
 
-<!-- more -->
+> 设计文档
+>
+> <!-- more -->
 
 # 通信流 Communication Flow
 

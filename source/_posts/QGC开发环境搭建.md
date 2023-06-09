@@ -2,8 +2,10 @@
 title: QGC开发环境搭建
 tags:
   - qt
+  - QGC
 categories:
   - qt
+  - QGC
 toc: true
 recommend: 1
 keywords: categories-java
@@ -13,8 +15,6 @@ date: 2023-05-09 11:46:50
 thumbnail:
 ---
 <!-- more -->
-
-
 
 #### 获取源码：
 
