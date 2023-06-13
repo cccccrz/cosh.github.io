@@ -57,3 +57,6 @@ cmake --build build
 python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=./include/ message_definitions/v1.0/common.xml
 ```
 
+
+
+官方手册：[Install MAVLink · MAVLink Developer Guide](https://mavlink.io/zh/getting_started/installation.html)
