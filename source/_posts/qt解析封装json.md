@@ -21,7 +21,7 @@ QString PackWithUuid(const QJsonObject& obj)
     if (obj.isEmpty()) return QString();
     obj["uuid"] = "uuid";
     QJsonDocument doc(obj);
-    return obj.toJson(QJsonDocument::Compact);
+    return doc.toJson(QJsonDocument::Compact);
 }
 
 QString PackJson(const QString& text)

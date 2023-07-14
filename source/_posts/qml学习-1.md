@@ -72,9 +72,9 @@ new TJs.xxxx
 
 1. x、y坐标，width、height大小
 2. anchors属性
-   - top、bottom、left、right
-   - fill：Item 填充目标
-   - margin
+   - top、bottom、left、right、fill 锚点
+   - margin 外边距
+   - padding 内边距
 3. QML Types：Flow、Grid、Row、Column
 4. Qt Quick Layouts：GridLayout、RowLayout、ColumnLayout、StackLayout
 
