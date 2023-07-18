@@ -10,9 +10,9 @@ date: 2023-04-17 16:48:15
 toc: true
 ---
 
-记录一些知识点
-
-<!-- more -->
+> 记录一些知识点
+>
+> <!-- more -->
 
 ##### **mutable**
 
@@ -53,13 +53,3 @@ pA->b_ = a; // 你得知道自己在干什么！
 [linux下C++多线程并发之原子操作与无锁编程 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/149464798)[对int变量赋值的操作是原子的吗？ - 知乎 (zhihu.com)](https://www.zhihu.com/question/27026846)
 
 
-
-
-
-面经：
-
-[更新了一波字节面经，刷刷看吧 (qq.com)](https://mp.weixin.qq.com/s/w4ByKUahjMnlQH8M8F9Hfw)
-
-进度：
-
-[字节后台社招面经_牛客网 (nowcoder.com)](https://www.nowcoder.com/discuss/353157608418779136)

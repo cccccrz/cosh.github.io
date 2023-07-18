@@ -1,5 +1,5 @@
 ---
-title: qml学习-1
+title: qml学习-1-基本语法
 tags:
   - qt
   - QML
