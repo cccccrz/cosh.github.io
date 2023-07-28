@@ -3,6 +3,7 @@ title: QGC架构设计
 tags:
   - qt
   - QGC
+  - QML
 categories:
   - qt
   - QGC
