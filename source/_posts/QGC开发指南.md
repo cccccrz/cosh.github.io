@@ -1,5 +1,5 @@
 ---
-title: QGC架构设计
+title: QGC开发指南
 tags:
   - qt
   - QGC
@@ -15,8 +15,7 @@ mathJax: false
 date: 2023-05-10 18:56:24
 ---
 
-> 设计文档
->
+> QGC开发指南翻译+个人注解
 > <!-- more -->
 
 # 通信流 Communication Flow
@@ -35,7 +34,7 @@ date: 2023-05-10 18:56:24
 - 参数加载完成后，与`vehicle`对象相关联的`MissionManager`使用任务协议(mission protocol)从连接的设备请求任务项(mission items)
 - 当参数加载完成后，`VehicleComponents`对象将在Setup视图中显示其UI
 
-
+</br>
 
 # 插件架构设计 Plugin Architecture
 
@@ -61,7 +60,7 @@ QGC使用插件架构将固件特定代码与所有固件通用代码隔离开�
 
 这用于通过标准接口公开与车辆无关的QGC应用程序本身的特性。然后由自定义构建使用它来调整QGC特性集以满足其需求。
 
-
+</br>
 
 # 类层次结构（上层）
 
@@ -91,7 +90,7 @@ QGC中的“链接”是QGC与载具间的一种特定类型的通信管道，�
 
 `FirmwarePluginManager`是一个工厂类，它根据`Vehicle`类的成员`MAV_AUTOPILOT / MAV_TYPE`组合创建`FirmwarePlugin`类的实例。
 
-
+</br>
 
 #  用户界面设计
 
@@ -99,9 +98,9 @@ QGC中UI设计的主要模式是用QML编写的UI页面，多次与用C ++编写
 
 QML代码通过以下机制绑定到与系统关联的信息：
 
-- 自定义控制器
-- 全局QGroundControl对象，提供对活动Vehicle等内容的访问
-- FactSystem提供对参数的访问，在某些情况下提供自定义事实。
+- 自定义“Controller”
+- 全局QGroundControl对象，提供对active Vehicle等内容的访问
+- FactSystem提供对参数的访问，在某些情况下提供自定义Facts。
 
 注意：由于QGC中使用的QML的复杂性以及它依赖于与C ++对象的通信来驱动ui，因此无法使用Qt提供的QML Designer来编辑QML。
 
@@ -123,11 +122,13 @@ QGC没有针对不同屏幕尺寸和/或形状因子的不同编码的UI。 通�
 
 #### FactSystem（事实系统）
 
-QGC内部是一个系统，用于管理系统中的所有单个数据。 这个数据模型是连接到控件的。
+QGC的内部是一个系统，用于管理系统内的所有单个数据块。然后将此数据模型连接到控件。
 
-#### 严重依赖可重用控件
+#### 严重依赖可重用控件[^注1]
 
-QGC UI是从一组可重用的控件和UI元素开发而来的。 这样，现在可以在整个UI中使用添加到可重用控件的任何新功能。 这些可重用的控件还连接到FactSystem Facts，然后FactSystem Facts自动提供适当的UI。
+QGC UI是由一组基本的可重用控件和UI元素开发的。这样，添加到可重用控件中的任何新特性现在都可以在整个UI中使用。这些可重用控件还连接到FactSystem Facts，然后自动提供适当的UI。
+
+[^注1]: 意思是 QGC 内部重写了QML基本控件，方便自适应各种屏幕，还可以关联 Fact 系统，实现数据持久化。
 
 
 
@@ -156,7 +157,7 @@ ScreenTools项提供可用于指定字体大小的值。 它还提供有关屏�
 
 ## 用户界面控件
 
-QGC提供了一组用于构建用户界面的基本控件。 一般来说，它们往往是Qt支持的基本QML控件上方的薄层，Qt控件支持QGC调色板。
+QGC为构建用户界面提供了一组基本控件。 一般来说，它们往往是Qt支持的基本QML控件上一层，这些控件遵守QGC调色板。
 
 ```
 import QGroundControl.Controls 1.0
@@ -164,7 +165,7 @@ import QGroundControl.Controls 1.0
 
 ### Qt控件
 
-以下控件是标准Qt QML控件的QGC变体。 除了使用QGC调色板绘制。 它还们提供与相应Qt控件相同的功能，
+以下控件是标准Qt QML控件的QGC变体[^注2]。 除了使用QGC调色板绘制。 它还们提供与相应Qt控件相同的功能。
 
 - QGCButton
 - QGCCheckBox
@@ -177,6 +178,10 @@ import QGroundControl.Controls 1.0
 - QGCSlider
 - QGCTextField
 
+[^注2]: 即QML基本控件的子类对象
+
+
+
 ### QGC 控件
 
 这些自定义控件是QGC独有的，用于创建标准UI元素。
@@ -184,33 +189,57 @@ import QGroundControl.Controls 1.0
 - DropButton - RoundButton，单击时会删除一组选项。 示例是平面视图中的同步按钮。
 - ExclusiveGroupItem - 用于支持QML ExclusiveGroup 概念的自定义控制的基础项目。
 - QGCView - 系统中所有顶级视图的基本控件。 提供对FactPanels的支持并显示QGCViewDialogs和QGCViewMessages。
-- QGCViewDialog - 从QGC视图右侧弹出的对话框。 您可以指定对话框的接受/拒绝按钮以及对话框内容。 使用示例是当您单击某个参数并显示值编辑器对话框时。
+- QGCViewDialog - 从QGC视图右侧弹出的对话框。 您可以指定对话框的接受/拒绝按钮以及对话框内容。 使用示例是当您单击某个参数并显示值编辑器对话框时。[^注3]
 - QGCViewMessage - QGCViewDialog的简化版本，允许您指定按钮和简单的文本消息。
 - QGCViewPanel - QGCView内部的主要视图内容。
 - RoundButton - 一个圆形按钮控件，它使用图像作为其内部内容。
 - SetupPage - 所有安装载具组件页面的基本控件。 提供标题，说明和组件页面内容区域。
 
+[^注3]:FactTextField对象是关联了Fact系统的文本编辑框，点击编辑会在右侧显示帮助按钮，点击帮助按钮会弹出该对话框。
 
+</br>
 
-# Fact System(事实系统)
+# Fact System
 
-Fact System(事实系统)提供一组标准化和简化QGC用户界面创建的功能。
+Fact System[^注4]提供一组标准化和简化QGC用户界面创建的功能。
+
+[^注4]: 提供了数据的定义模板，只需要定义一个json并使用宏声明即可
 
 ## Fact
 
-事实代表系统中的单个值。
+Fact[^注5]代表系统中的单个数据。
+
+[^注5]:Fact是对单个数据的封装并对外提供接口，支持QML数据交互。数据变更时，会相应发出信号
 
 ## FactMetaData
 
-与每个事实有FactMetaData相关联 它提供有关事实的详细信息，以便驱动自动用户界面生成和验证。
+每个Fact都有一个FactMetaData[^注6]。它提供了有关Fact的详细信息，以便驱动自动用户界面生成和验证。
 
-## 事实控制
+[^注6]:用于存储单个数据，数据由json解析而来，支持数字、字符串、枚举等；数据信息包含数据键值，类型，范围，默认值等，以供校验；还提供了翻译功能，可以在qgc_json_zh_CN.ts进行翻译，翻译时需要注意有些内容是以','作为分割符，不可翻译为中文符号
 
-事实控件是一个QML用户界面控件，它连接到Fact和它的FactMetaData，为用户提供控件以修改/显示与Fact相关的值。
+##  Fact Controls
 
-## FactGroup（事实小组）
+Fact Controls[^注7]是一个QML用户界面控件，它连接到Fact和它的FactMetaData，为用户提供控件以修改/显示与Fact相关的值。
 
-FactGroup是一组Facts。它用于组织事实和管理用户定义的Fact。
+[^注7]:与Fact系统关联的QML控件，能够同步更新数据
+
+## FactGroup
+
+FactGroup[^注8]是一组Facts。它用于组织事实和管理用户定义的Facts。
+
+[^注8]:将Fact编为一组数据进行封装，增加层次关系，加强管理。
+
+## 补充：
+
+**SettingsFact**
+
+继承自`Fact`，增加了数据持久化，使用`QSettings`保存至ini配置文件
+
+**SettingsGroup**
+
+将单个json文件编为一组，并解析保存至`_nameToMetaDataMap`;
+
+提供了持久化数据(`SettingsFact`)的创建模板。
 
 ## 自定义构建支持
 
@@ -218,7 +247,7 @@ FactGroup是一组Facts。它用于组织事实和管理用户定义的Fact。
 
 获取更多信息，请参阅FirmwarePlugin.h中的注释。
 
-
+</br>
 
 # 顶级视图
 
@@ -451,7 +480,7 @@ QGC 创建用户界面，用于从 json 元数据的层次结构中动态编辑�
   - `FlightDisplayViewMap`
   - `FlightDisplayViewVideo`
 
-
+</br>
 
 # 文件格式
 
@@ -509,7 +538,7 @@ Mock Link允许您在QGroundControl调试版本中创建和停止指向多个模
 
 然后使用模拟链接或多或少与使用任何其他载具相同，只是模拟不允许飞行。
 
-
+</br>
 
 # 命令行选项
 
@@ -558,7 +587,7 @@ Notes:
 
 - 单元测试自动包含在调试版本中（作为QGroundControl的一部分）。 QGroundControl在单元测试的控制下运行（它不能正常启动）。
 
-
+</br>
 
 # 自定义构建
 
@@ -648,7 +677,7 @@ QGC 源代码术语中的“资源”是指[在 qgroundcontrol.qrc](https://gith
 - [工具栏自定义](https://dev.qgroundcontrol.com/master/zh/custom_build/Toolbar.html)
 - [飞视图定制](https://dev.qgroundcontrol.com/master/zh/custom_build/FlyView.html)
 
-
+</br>
 
 # 首次运行提示
 
@@ -703,7 +732,7 @@ QGC 源代码术语中的“资源”是指[在 qgroundcontrol.qrc](https://gith
 
 通过在提示ui实现中设置 `markAsShownOnClose: false` 属性，你可以创建一个每次QGC启动时都会显示的提示符。这可以用于向用户显示使用提示之类的事情。如果您这样做，最好确保最后显示它。
 
-
+</br>
 
 # 定制工具栏
 
@@ -757,7 +786,7 @@ QGC 源代码术语中的“资源”是指[在 qgroundcontrol.qrc](https://gith
 
 Plan视图使用它来显示状态值。如果您想更改ui，您可以覆盖该文件并提供您自己的自定义版本。
 
-
+</br>
 
 # 飞行视图定制
 
@@ -802,53 +831,53 @@ Fly View的一个重要方面是，它需要了解它的地图窗口中间有多
 
 最后也是最不推荐的定制机制是重写 `FlyView.qml` 。通过这样做，您将进一步远离免费获得上游更改
 
-
+</br>
 
 # 自定义构建的发布过程[WIP文档]
 
 创建您自己的自定义构建的一个更棘手的方面是使其与常规QGC保持同步的过程。本文档描述了建议遵循的流程。但实际上，我们欢迎您为定制构建使用任何分支和发布策略。
 
-## Upstream QGC release/branching strategy
+## 上游QGC发布/分支策略
 
-The best place to start is understanding the mechanism QGC uses to do it's own releases. We will layer a custom build release process on top of that. You can find standard QGC [release process here](https://dev.qgroundcontrol.com/master/en/ReleaseBranchingProcess.html).
+最好的起点是理解QGC用来发布自己版本的机制。我们将在此基础上分层定制构建发布过程。您可以在这里找到标准的QGC[发布过程](https://dev.qgroundcontrol.com/master/en/ReleaseBranchingProcess.html)。
 
-## Custom build/release types
+## 自定义构建/发布类型
 
-Regular QGC has two main build types: Stable and Daily. The build type for a custom build is more complex. Throughout this discussion we will use the term "upstream" to refer to the main QGC repo (https://github.com/mavlink/qgroundcontrol). Also when we talk about a "new" upstream stable release, this means a major/minor release, not a patch release.
+常规QGC有两种主要的构建类型:稳定版和每日版。自定义构建的构建类型更为复杂。在整个讨论中，我们将使用术语“上游”来指代主要的QGC回购(https://github.com/mavlink/qgroundcontrol)。此外，当我们谈论“新的”上游稳定版本时，这意味着一个主要/次要版本，而不是补丁版本。
 
-### Synchronized Stable
+### 同步稳定版
 
-This type of release is synchronized with the release of an upstream stable. Once QGC releases stable you then release a version of your custom build which is based on this stable. This build will include all the new features from upstream including the new feature in your own custom code.
+这种类型的发布与上游稳定版的发布同步。一旦QGC发布稳定版，您就可以发布基于此稳定版的自定义构建版本。此构建将包括来自上游的所有新功能，包括您自己的自定义代码中的新功能。
 
-### Out-Of-Band Stable
+### 带外稳定版 Out-Of-Band Stable
 
-This a subsequent release of your custom build after you have released a synchronized stable but prior to upstream releasing a new stable. It only includes new features from your own custom build and include no new features from upstream. Work on this type of release would occur on a branch which is either based on your latest synchronized stable or your last out of band release if it exists. You can release out of band stable releases at any time past your first synchronized stable release.
+这是自定义构建的后续版本，在发布同步稳定版之后，但在上游发布新稳定版之前。它只包括来自您自己的定制构建的新特性，不包括来自上游的新特性。这种类型发布的工作将发生在一个分支上，该分支要么基于您最新的同步稳定版本，要么基于您的最后一个带外发布版本(如果存在的话)。您可以在第一个同步稳定版本之后的任何时间发布带外稳定版本。
 
-### Daily
+### 每日版 Daily
 
-Your custom daily builds are built from your branch. It is important to keep your custom master up to date with QGC master. If you lag behind you may be surprised by upstream features which require some effort to integrate with your build. Or you may even require changes to "core" QGC in order to work with your code. If you don't let QGC development team know soon enough, it may end up being too late to get things changed.`master`
+您的自定义每日构建是从您的分支构建的。重要的是要使您的定制主与QGC主保持同步。如果你落后了，你可能会对上游特性感到惊讶，这些特性需要一些努力才能集成到你的构建中。或者您甚至可能需要更改“核心”QGC以便与您的代码一起工作。如果您不尽快让QGC开发团队了解情况，可能会导致更改为时已晚。
 
-## Options for your first build
+## 第一次构建的选项
 
-### Starting with a Synchronized Stable release
+### 从同步稳定版本开始
 
-It is suggested that you start with releasing a Synchronized Stable. This isn't necessary but it is the simplest way to get started. To set your self up for a synchronized stable you create your own branch for development which is based on the upstream current stable.
+建议您从已发布的同步稳定版开始。这不是必须的，但这是最简单的开始方式。要设置自己的同步稳定，您需要创建自己的开发分支，该分支基于上游当前稳定。
 
-### Starting with Daily builds
+### 从每日构建开始
 
-The reason why you may consider this as your starting point is because you need features which are only in upstream master for your own custom builds. In this case you will have to live with releasing custom Daily builds until the next upstream stable. At which point you would release you first Synchronized Stable. For this setup you use your master branch and keep it in sync with upstream master as you develop.
+你可能会认为这是你的起点，因为你需要的功能，只有在上游主为您自己的定制构建。在这种情况下，您将不得不忍受发布自定义的每日构建，直到下一个上游稳定版本。这时你会发布第一个同步稳定版本。对于这种设置，您可以使用主分支，并在开发时使其与上游主分支保持同步。
 
-## After you release your first Synchronized Stable
+## 在你发布第一个同步稳定版之后
 
-### Patch Releases
+### 补丁发布
 
-As upstream QGC does patch releases on Stable you should also release your own patch releases based on upstream to keep your stable up to date with latest criticial bug fixes.
+由于上游QGC在稳定版上发布补丁，您也应该基于上游版本发布自己的补丁版本，以使您的稳定版与最新的关键错误修复保持同步。
 
-### Out-Of-Band, Daily: One or the other or both?
+### 带外版, 每日版: One or the other or both?
 
-At this point you can decide which type of releases you want to follow. You can also decide to possibly do both. You can do smaller new features which don't require new upstream features using out of band releases. And you can do major new feature work as daily/master until the point you can do a new synchronized stable.
+此时，您可以决定要遵循哪种类型的发布。你也可以决定两者都做。你可以使用带外发行版来实现更小的新功能，而不需要新的上游功能。你可以做一些主要的新功能工作，比如daily/master，直到你可以做一个新的同步稳定版。
 
-
+</br>
 
 # MAVLink 定制
 
@@ -870,6 +899,6 @@ To do this:
 
 
 
-## 参考链接：
+# 参考链接：
 
 [Overview · QGroundControl Developer Guide](https://dev.qgroundcontrol.com/master/en/)
