@@ -18,13 +18,13 @@ thumbnail:
 > 记录Qt的bug
 > <!-- more -->
 
-##### 1. qtcreator 卡死
+### **1. qtcreator 卡死**
 
 ![image-20230530102820530](https://cdn.jsdelivr.net/gh/cccccrz/cccccrz.github.io@main/source/img/image-20230530102820530.png)
 
 参考[QT 5.12和有道词典冲突](https://blog.csdn.net/justformemory/article/details/107537434)
-
-##### 2.qt翻译
+</br>
+### **2.qt 翻译 bug**
 由于翻译是社区贡献的，一直存在一个bug，QMessageBox翻译错误。
 **快速解决：**
 需要下载qt源码，将src/qttranslations/translations/qt_zh_CN.ts 中的`QDialogButtonBox` 替换为 `QPlatformTheme`
