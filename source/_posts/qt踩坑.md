@@ -4,6 +4,7 @@ tags:
   - qt
 categories:
   - qt
+  - bug
 toc: true
 recommend: 1
 keywords: categories-java
