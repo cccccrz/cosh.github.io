@@ -36,6 +36,6 @@ thumbnail:
 ### **3.QtCreator 启动慢**
 QtCreator 启动时会读取默认配置`QtCreator.ini` ，Windows在`%appdata%\QtProject\QtCreator.ini` ，Linux 在 `~/.config/QtProject/QtCreator.ini`。当同时启动不同版本的QtCreator时，这个配置文件会不断变大，导致再次启动时巨慢。
 **快速解决：**
-打开 ini 文件，里面有行 `WatchItems`，删除即可。
+打开 ini 文件，里面有  `WatchItems`，删除即可，ReplaceStrings该行替换`ReplaceStrings=QString(, ",", windowShade, , , )`
 或
 该目录有之前的配置备份，找个小的替换即可。没有可以删除，但需要重新配置Qt。
