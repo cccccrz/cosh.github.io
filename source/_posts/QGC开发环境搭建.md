@@ -14,7 +14,10 @@ mathJax: false
 date: 2023-05-09 11:46:50
 ---
 > 源码获取&&模块安装&&问题解决
->
+> 推荐的开发环境：
+> Windows10/11、Ubuntu20.04、Android{jdk11}
+> Qt Version：5.15.2
+> QGC Version：latest release version
 > 参考[QGC开发手册](https://dev.qgroundcontrol.com/master/en/getting_started/)
 >
 > <!-- more -->
@@ -84,7 +87,7 @@ git submodule foreach git reset --hard
 - **Ubuntu:** `sudo apt-get install speech-dispatcher libudev-dev libsdl2-dev patchelf build-essential curl libxcb-xinerama0 -y`
 - **Fedora:** `sudo dnf install speech-dispatcher SDL2-devel SDL2 systemd-devel patchelf`
 - **Arch Linux:** `pacman -Sy speech-dispatcher patchelf`
-- **Android:** [Qt Android Setup](http://doc.qt.io/qt-5/androidgs.html)  ；个人博客：配置Qt&Android开发环境
+- **Android:** [Qt Android Setup](http://doc.qt.io/qt-5/androidgs.html)  ；个人博客：[配置Qt&Android开发环境](https://cccccrz.github.io/2023/07/28/%E9%85%8D%E7%BD%AEQt-Android%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/)
 
 </br>
 
@@ -96,7 +99,11 @@ git submodule foreach git reset --hard
 
 该模块提供视频流支持；
 
-需要克隆 `libs\qmlglsink\gst-plugins-good` ，并下载 gstreamer 库
+**确认子模块存在**
+
+qgc代码目录`libs/qmlglsink/gst-plugins-good`克隆 `https://github.com/mavlink/gst-plugins-good.git` 。
+
+**下载 gstreamer 库**
 
 *Windows/Android*
 
@@ -163,7 +170,7 @@ sudo apt-get remove modemmanager
 
 视频，模拟飞行；已搭建
 
-多机控制；待搭建
+多机控制；已搭建
 
 </br>
 
