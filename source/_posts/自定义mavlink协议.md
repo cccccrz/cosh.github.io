@@ -33,7 +33,7 @@ date: 2023-07-14 15:32:36
 
 `mavlink\message_definitions\v1.0` 增加自定义 XML，如`custom.xml`
 
-在`all.xml`里导入
+在 `all.xml` 或 `common.xml` 里导入
 
 ```xml
 <?xml version="1.0"?>
@@ -142,7 +142,6 @@ Language，Protocol 自选，这里选c++11，2.0
 点击Generate生成头文件
 
 自行导入并使用
-
 
 
 参考文章:  

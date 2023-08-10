@@ -14,12 +14,13 @@ date: 2023-05-08 21:28:01
 thumbnail:
 ---
 
+> 支持Windows、Linux
+> 使用过的环境：windows11、ubuntu20.04、银河麒麟V10(SP1) 2203 x86_64
+> 
+> <!-- more -->
 
-##### 本机环境：
 
-系统：银河麒麟V10(SP1) 2203 x86_64
-
-<!-- more -->
+# Linux
 
 ##### 1. 获取源码
 
@@ -58,5 +59,12 @@ python3 -m pymavlink.tools.mavgen --lang=C --wire-protocol=2.0 --output=./includ
 ```
 
 
+# Windows
+
+1. 安装Python 3.6+ [Python for Windows](https://www.python.org/downloads/)
+2. future 模块 `pip3 install future`
+3. 克隆源码  `git clone https://github.com/mavlink/mavlink.git --recursive`
+
+可以直接双击 `mavgenerate.py` 运行，或者加入环境变量，使用命令行运行 `python3 -m mavgenerate`
 
 官方手册：[Install MAVLink · MAVLink Developer Guide](https://mavlink.io/zh/getting_started/installation.html)
